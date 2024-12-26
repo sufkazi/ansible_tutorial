@@ -1,0 +1,22 @@
+---
+
+- hosts: all
+  become: true
+  tasks: 
+
+  - name: update repository index
+    package: 
+       update_cache: yes
+
+  - name: install apache2 package
+    package:
+      name: httpd
+      state: absent 
+
+  - name: add php support for apache
+    package:
+       name: 
+         - php
+         - php-cli
+         - php-common
+       state: absent
