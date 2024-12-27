@@ -1,0 +1,43 @@
+---
+
+- hosts: all
+  become: true
+  tasks: 
+        - name: install updates(CentOS)
+          tags: always
+          package:
+                update_only: yes
+                update_cache: yes
+          when: ansible_distribution == "CentOS"
+
+        - name: install apache2 & add php support for apache
+          tags: always,apache,apache2,httpd
+          package:
+                name: 
+                 - httpd
+                 - php
+                 - php-cli
+                 - php-common
+                state: present
+                update_cache: yes
+ 
+- hosts: web_servers 
+  become: true
+  tasks:
+          - name: install mariadb package
+            tags: mariadb,centos,db
+            package: 
+                name: mariadb
+                state: latest
+            when: ansible_distribution == "CentOS"
+           
+
+- hosts: file_server
+  become: true
+  tasks:
+          - name: install samba package
+            tags: samba
+            package:
+                name: samba
+                state: latest
+            when: ansible_distribution == "CentOS"
