@@ -1,0 +1,47 @@
+---
+
+- hosts: all
+  become: true
+  tasks: 
+        - name: install updates(CentOS)
+          tags: always
+          package:
+                update_only: yes
+                update_cache: yes
+          when: ansible_distribution == "CentOS"
+
+        - name: install apache2 & add php support for apache
+          tags: always,apache,apache2,httpd
+          package:
+                name: 
+                 - httpd
+                 - php
+                 - php-cli
+                 - php-common
+                state: present
+                update_cache: yes
+       
+
+- hosts: all
+  become: true
+  tasks:
+
+          - name: create user names neo user
+            tags: always
+            user:
+                    name: neo
+                    groups: root
+
+          - name: add ssh key for neo
+            tags: always 
+            authorized_key:
+                    user: neo
+                    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII4hIr8gQkYL52dY6F+2IkcPBe6v/AxsjPiNyXH+cHK4 ansible"
+
+          - name: add sudoers file for neo
+            tags: always
+            copy: 
+                src: sudoers_neo
+                dest: /etc/sudoers.d/neo
+                owner: root
+                group: root
