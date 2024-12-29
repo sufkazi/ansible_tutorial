@@ -3,11 +3,11 @@
 - hosts: all
   become: true
   tasks: 
-        - name: install updates(CentOS)
+        - name: update repo cache(CentOS)
           tags: always
           package:
-                update_only: yes
                 update_cache: yes
+          changed_when: false
           when: ansible_distribution == "CentOS"
 
         - name: install apache2 & add php support for apache
@@ -20,7 +20,37 @@
                  - php-common
                 state: present
                 update_cache: yes
- 
+       
+
+- hosts: all
+  become: true
+  tasks:
+
+
+          - name: add ssh key for neo
+            tags: always 
+            authorized_key:
+                    user: neo
+                    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII4hIr8gQkYL52dY6F+2IkcPBe6v/AxsjPiNyXH+cHK4 ansible"
+
+
+- hosts: workstation
+  become: true
+  tasks:
+        - name: install unzip
+          package:
+               name: unzip
+
+        - name: install terraform
+          unarchive:
+                  src: https://releases.hashicorp.com/terraform/1.10.3/terraform_1.10.3_linux_arm64.zip
+                  dest: /usr/local/bin
+                  remote_src: yes
+                  mode: 0755
+                  owner: root
+                  group: root
+
+
 - hosts: web_servers 
   become: true
   tasks:
@@ -39,6 +69,14 @@
                 owner: root
                 group: root
                 mode: 0644
+
+          - name: start httpd (CentOS)
+            tags: apache,centos,httpd
+            service:
+                   name: httpd
+                   state: started
+                   enabled: yes
+            when: ansible_distribution == "CentOS"
 
 
 - hosts: file_server
