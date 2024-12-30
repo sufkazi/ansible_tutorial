@@ -1,0 +1,24 @@
+- name: install mariadb package
+  tags: mariadb,centos,db
+  package:
+         name: mariadb
+         state: latest
+  when: ansible_distribution == "CentOS"
+
+- name: copy html file for site
+  tags: html,copy,httpd
+  copy:
+        src: default_site.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: 0644
+
+- name: start httpd (CentOS)
+  tags: apache,centos,httpd
+  service:
+        name: httpd
+        state: started
+        enabled: yes
+  when: ansible_distribution == "CentOS"
+
